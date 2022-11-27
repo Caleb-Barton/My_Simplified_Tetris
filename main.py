@@ -3,16 +3,23 @@ from Agent import Agent
 from Memory import Memory
 import numpy as np
 import time
+import pickle
 
 
-max_iteration = 15000
+max_iteration = 2000
 logging_iteration = 100
 learning = []
 losses = []
 
+polyomino = 3
+wellWidth = 4
+wellHeight = 7
+
+environment = Env_CB(polyomino, wellWidth, wellHeight)
 # environment = Env_CB(4, 10, 20)
-environment = Env_CB(3, 4, 7)
-agent = Agent(environment)
+file = open(f"Agents/TDNN/agent.p", "rb")
+agent = pickle.load(file)
+# agent = Agent(environment)
 memory = Memory(max_size=5000)
 
 for iteration in range(1, max_iteration + 1):
@@ -49,6 +56,9 @@ for iteration in range(1, max_iteration + 1):
         print(f"  Memory-Buffer Size: {len(memory.memory)}")
         print(f"  Agent Randomness: {agent.randomness:.3f}")
         print()
+
+# filehandler = open(f"Agents/TDNN/agent.p", "wb")
+# pickle.dump(agent, filehandler)
 
 """
 import gym
