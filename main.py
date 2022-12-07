@@ -5,6 +5,16 @@ import numpy as np
 import time
 import pickle
 
+# num = 5
+#
+# from gym import spaces
+# space = spaces.Tuple((
+#     eval("spaces.Discrete(2)," * num)
+#   ))
+#
+#
+# print(space.sample())
+
 
 max_iteration = 2000
 logging_iteration = 100
@@ -18,14 +28,15 @@ wellHeight = 7
 environment = Env_CB(polyomino, wellWidth, wellHeight)
 # environment = Env_CB(4, 10, 20)
 file = open(f"Agents/TDNN/agent.p", "rb")
-agent = pickle.load(file)
-# agent = Agent(environment)
+# agent = pickle.load(file)
+agent = Agent(environment)
 memory = Memory(max_size=5000)
 
 for iteration in range(1, max_iteration + 1):
     steps = 0
     done = False
     state = environment.reset()
+    print("State start: ", state)
 
     while not done:
         if iteration % logging_iteration == 0:
@@ -34,6 +45,7 @@ for iteration in range(1, max_iteration + 1):
             environment.render()
             time.sleep(0.25)
         else:
+            print("state is ", state)
             action = agent.act(state)
             next_state, reward, done, *_ = environment.step(action)
 

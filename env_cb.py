@@ -1,6 +1,7 @@
 import gym
 import gym_simplifiedtetris
 import numpy as np
+from gym import spaces
 
 
 class Env_CB:
@@ -11,10 +12,25 @@ class Env_CB:
         self.wellHeight = wellHeight
         self.env = gym.make(f"simplifiedtetris-binary-{wellHeight}x{wellWidth}-{minoSize}-v0")
         self.coveredBlocks = 0
-        self.observation_space = np.array([0.0] * (self.wellWidth + 1))
-        self.action_space = self.env.action_space
+
+        # This should probably be somewhere else...
+        self.__NumOfPiecesList = [1, 1, 1, 2, 7, 18, 60, 196, 704]  # 0 blocks, 1 piece, 3 blocks, 7 pieces
+        self.NumOfPieces = self.__NumOfPiecesList[minoSize]
+
+        self.observation_space = np.array([0] * (self.wellWidth + self.NumOfPieces))
+        print("My os? ",self.observation_space)
+        print("Their os? ",self.env.observation_space)
+
+        # I should make the action space an array?
+        self.action_space = spaces.Tuple((
+            eval("spaces.Discrete(2)," * self.env.action_space.n)   # .n is the number of options in the action space. Neat
+        ))
+        print(self.action_space)
+        # self.action_space = self.env.action_space
+        print(self.env.action_space)
 
     def step(self, action):
+        # There will be an error here
         obs, reward, done, info = self.env.step(action)
         newCoveredBlocks = self.checkForCoveredSpaces(obs)
         self.checkHeight(obs)
@@ -25,13 +41,16 @@ class Env_CB:
         return self.simplifyObs(obs), reward, done, info
 
     def simplifyObs(self, obsCmplx):
-        newObs = [np.float32(self.wellHeight)] * (self.wellWidth + 1)  # First element will be the new piece
-        newObs[-1] = np.float32(obsCmplx[-1])
+        newObs = [np.int32(self.wellHeight)] * (self.wellWidth + self.NumOfPieces)
+        for i in range(- self.NumOfPieces, 0): # The last describes the piece
+            newObs[i] = 0
+        currPiece = obsCmplx[-1] + 1   # +1 because it starts at zero, and I can't do [-0] (Used to be currPiece = (np.float32.apply(int))(obsCmplx[-1]) + 1)
+        newObs[- currPiece] = 1  # Gosh I hope this works.
         for col in range(self.wellWidth):
             row = 0
             while row < self.wellHeight:
                 if obsCmplx[col * self.wellHeight + row] != 0:
-                    newObs[col] = np.float32(row) # Each column will be labeled with the number of row that had an element
+                    newObs[col] = np.int32(row) # Each column will be labeled with the number of row that had an element
                     break
                 else:
                     row += 1

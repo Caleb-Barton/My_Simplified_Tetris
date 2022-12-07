@@ -6,7 +6,7 @@ import torch
 class Agent(object):
     def __init__(self, environment):
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        self.model = QualityNN(environment.observation_space.shape[0], environment.action_space.n).to(self.device)
+        self.model = QualityNN(environment.observation_space.shape[0], len(environment.action_space)).to(self.device)
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=3e-3)
 
         self.decay = 0.999
@@ -85,8 +85,8 @@ class Agent(object):
     def unpack_batch(self, batch):
         states, next_states, actions, rewards = zip(*batch)
 
-        states = torch.tensor(states).float().to(self.device)
-        next_states = torch.tensor(next_states).float().to(self.device)
+        states = torch.tensor(states).int().to(self.device) # I changed these from float to int
+        next_states = torch.tensor(next_states).int().to(self.device)
 
         # unsqueeze(1) makes 2d array. [1, 0, 1, ...] -> [[1], [0], [1], ...]
         # this is required because the first array is for the batch, and
@@ -94,8 +94,8 @@ class Agent(object):
         # the states and next_states are already in this format so we don't
         #   need to do anything to them
         # .long() for the actions because we are using them as array indices
-        actions = torch.tensor(actions).long().unsqueeze(1).to(self.device)
-        rewards = torch.tensor(rewards).float().unsqueeze(1).to(self.device)
+        actions = torch.tensor(actions).int().unsqueeze(1).to(self.device)
+        rewards = torch.tensor(rewards).int().unsqueeze(1).to(self.device)
 
         return states, next_states, actions, rewards
 
