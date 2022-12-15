@@ -19,7 +19,7 @@ class Env_CB:
         newCoveredBlocks = self.checkForCoveredSpaces(obs)
         self.checkHeight(obs)
         if newCoveredBlocks != self.coveredBlocks:
-            rewardAdjust = (self.coveredBlocks - newCoveredBlocks) / 10  # NegNum if more than before,
+            rewardAdjust = (self.coveredBlocks - newCoveredBlocks) /4  # NegNum if more than before,
             self.coveredBlocks = newCoveredBlocks
             reward += rewardAdjust
         return self.simplifyObs(obs), reward, done, info
