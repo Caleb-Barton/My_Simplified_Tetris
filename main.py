@@ -16,7 +16,9 @@ def runIt():
     wellWidth = 4
     wellHeight = 7
 
-    environment = Env_CB(polyomino, wellWidth, wellHeight)
+    learningMethod = 0      # 0 is the original method, 1 is my method that accounts for covered spaces
+
+    environment = Env_CB(polyomino, wellWidth, wellHeight, learningMethod)
     agent = Agent(environment)
     memory = Memory(max_size=1000)
 

@@ -4,8 +4,7 @@ import numpy as np
 
 
 class Env_CB:
-    def __init__(self, minoSize=4, wellWidth=10, wellHeight=20, maxSteps=500):
-        self.maxSteps = maxSteps
+    def __init__(self, minoSize=4, wellWidth=10, wellHeight=20, reward=0):
         self.currStep = 0
         self.wellWidth = wellWidth
         self.wellHeight = wellHeight
@@ -13,15 +12,17 @@ class Env_CB:
         self.coveredBlocks = 0
         self.observation_space = np.array([0.0] * (self.wellWidth + 1))
         self.action_space = self.env.action_space
+        self.reward = reward
 
     def step(self, action):
         obs, reward, done, info = self.env.step(action)
-        newCoveredBlocks = self.checkForCoveredSpaces(obs)
-        self.checkHeight(obs)
-        if newCoveredBlocks != self.coveredBlocks:
-            rewardAdjust = (self.coveredBlocks - newCoveredBlocks) /4  # NegNum if more than before,
-            self.coveredBlocks = newCoveredBlocks
-            reward += rewardAdjust
+        if reward == 1:
+            newCoveredBlocks = self.checkForCoveredSpaces(obs)
+            self.checkHeight(obs)
+            if newCoveredBlocks != self.coveredBlocks:
+                rewardAdjust = (self.coveredBlocks - newCoveredBlocks) /4  # NegNum if more than before,
+                self.coveredBlocks = newCoveredBlocks
+                reward += rewardAdjust
         return self.simplifyObs(obs), reward, done, info
 
     def simplifyObs(self, obsCmplx):
